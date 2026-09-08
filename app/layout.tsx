@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://by-pogostik.aqua-book-5726.chatgpt.site"),
+  metadataBase: new URL("https://phantyt.github.io/by-pogostik/"),
   title: "by pogostik — учебный хаб",
   description: "Личное учебное пространство студента Высшей IT-школы КГУ: расписание, домашние задания, мероприятия и музыка для фокуса.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },

@@ -40,12 +40,15 @@ test("server-renders the by pogostik shell", async () => {
   assert.match(html, /26-[^<]*1/);
 });
 
-test("keeps the official groups, hosted auth guard and resilient full-track player", async () => {
-  const [page, serverData, schema, migration] = await Promise.all([
+test("keeps the official groups, verified sessions and resilient full-track player", async () => {
+  const [page, serverData, schema, migration, sessionMigration, authBridge, pagesHtml] = await Promise.all([
     read("app/page.tsx"),
     read("lib/server-data.ts"),
     read("db/schema.ts"),
     read("drizzle/0000_initial.sql"),
+    read("drizzle/0001_verified_sessions.sql"),
+    read("app/api/auth/bridge/route.ts"),
+    read("github-pages/index.html"),
   ]);
 
   for (const [id, code] of [
@@ -61,10 +64,19 @@ test("keeps the official groups, hosted auth guard and resilient full-track play
     assert.match(migration, new RegExp(`${id}.*${code}`));
   }
 
-  assert.match(page, /location\.hostname === "localhost"/);
+  assert.match(page, /pogostik-auth-token/);
+  assert.match(page, /\/api\/auth\/start/);
   assert.match(page, /\/tracks\/\$\{encodeURIComponent\(item\.id\)\}\/stream/);
   assert.match(page, /onEnded=\{\(\) => void playNextTrack\(\)\}/);
   assert.match(page, /onError=\{handleAudioError\}/);
   assert.match(schema, /uq_users_single_super_admin/);
   assert.match(schema, /role_check/);
+  assert.match(schema, /export const sessions/);
+  assert.match(sessionMigration, /CREATE TABLE `sessions`/);
+  assert.match(serverData, /vasmat2009@gmail\.com/);
+  assert.match(serverData, /crypto\.subtle\.digest\("SHA-256"/);
+  assert.match(serverData, /https:\/\/phantyt\.github\.io/);
+  assert.match(authBridge, /getChatGPTUser/);
+  assert.match(pagesHtml, /Content-Security-Policy/);
+  assert.match(pagesHtml, /by-pogostik\.vasmat2009\.chatgpt\.site/);
 });

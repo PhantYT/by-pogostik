@@ -16,10 +16,31 @@ export const users = sqliteTable("users", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 }, (table) => [
+  uniqueIndex("uq_users_email_nocase").on(table.email),
   index("idx_users_group_id").on(table.groupId),
   index("idx_users_role").on(table.role),
   uniqueIndex("uq_users_single_super_admin").on(table.role).where(sql`${table.role} = 'super_admin'`),
   check("users_role_check", sql`${table.role} IN ('student', 'group_admin', 'super_admin')`),
+]);
+
+export const sessions = sqliteTable("sessions", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at").notNull(),
+  lastUsedAt: text("last_used_at").notNull(),
+}, (table) => [
+  index("idx_sessions_user_id").on(table.userId),
+  index("idx_sessions_expires_at").on(table.expiresAt),
+]);
+
+export const authCodes = sqliteTable("auth_codes", {
+  codeHash: text("code_hash").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at").notNull(),
+}, (table) => [
+  index("idx_auth_codes_expires_at").on(table.expiresAt),
 ]);
 
 export const adminClaimAttempts = sqliteTable("admin_claim_attempts", {
